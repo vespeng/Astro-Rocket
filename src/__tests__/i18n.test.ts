@@ -10,9 +10,14 @@ import {
   swapLocaleInPath,
 } from '../i18n';
 
+// Personal branch config: defaultLocale 'zh-CN', locales ['zh-CN', 'en'].
+// Tests reflect that — unknown locales fall back to zh-CN, root path
+// returns zh-CN, etc.
+
 describe('i18n t() helper', () => {
   it('returns a translation for a valid dotted key', () => {
     expect(t('common.readMore', 'en')).toBe('Read more');
+    expect(t('common.readMore', 'zh-CN')).toBe('阅读更多');
   });
 
   it('returns the Dutch translation when locale is nl', () => {
@@ -20,8 +25,8 @@ describe('i18n t() helper', () => {
   });
 
   it('falls back to the default-locale string when the locale has no entry', () => {
-    // 'de' has no dictionary loaded yet — should fall back to English
-    expect(t('common.readMore', 'de')).toBe('Read more');
+    // 'de' has no dictionary loaded — falls back to zh-CN (the default)
+    expect(t('common.readMore', 'de')).toBe('阅读更多');
   });
 
   it('returns the key itself when no translation exists in any dictionary', () => {
@@ -30,7 +35,7 @@ describe('i18n t() helper', () => {
 
   it('interpolates {placeholder} variables', () => {
     expect(t('blog.readingTime', 'en', { minutes: 5 })).toBe('5 min read');
-    expect(t('blog.readingTime', 'nl', { minutes: 5 })).toBe('5 min leestijd');
+    expect(t('blog.readingTime', 'zh-CN', { minutes: 5 })).toBe('阅读约 5 分钟');
   });
 
   it('leaves unknown placeholders untouched', () => {
@@ -39,28 +44,33 @@ describe('i18n t() helper', () => {
 });
 
 describe('i18n localizedPath()', () => {
-  it('returns the path unchanged when i18n is disabled (single locale)', () => {
-    // With default config (locales: ['en']), i18n is effectively off
-    expect(localizedPath('/about')).toBe('/about');
-    expect(localizedPath('/')).toBe('/');
-    expect(localizedPath('blog/hello')).toBe('/blog/hello');
+  it('returns the path unchanged when targeting the default locale (no prefix added)', () => {
+    expect(localizedPath('/about', 'zh-CN')).toBe('/about');
+    expect(localizedPath('/', 'zh-CN')).toBe('/');
+  });
+
+  it('adds a locale prefix when targeting a non-default locale', () => {
+    expect(localizedPath('/about', 'en')).toBe('/en/about');
+    expect(localizedPath('blog/hello', 'en')).toBe('/en/blog/hello');
   });
 });
 
 describe('i18n locale helpers', () => {
   it('resolves an unknown locale to the default', () => {
-    expect(resolveLocale('xx')).toBe('en');
-    expect(resolveLocale(undefined)).toBe('en');
+    expect(resolveLocale('xx')).toBe('zh-CN');
+    expect(resolveLocale(undefined)).toBe('zh-CN');
   });
 
   it('validates a configured locale', () => {
     expect(isValidLocale('en')).toBe(true);
+    expect(isValidLocale('zh-CN')).toBe(true);
     expect(isValidLocale('xx')).toBe(false);
     expect(isValidLocale(undefined)).toBe(false);
   });
 
   it('returns the display name when configured, otherwise the code', () => {
     expect(getLocaleName('en')).toBe('English');
+    expect(getLocaleName('zh-CN')).toBe('简体中文');
     // 'nl' is in localeNames even though it's not in the active locales list
     expect(getLocaleName('nl')).toBe('Nederlands');
     expect(getLocaleName('xx')).toBe('xx');
@@ -69,26 +79,37 @@ describe('i18n locale helpers', () => {
 
 describe('i18n getLocaleFromPath()', () => {
   it('returns the default locale for the root path', () => {
-    expect(getLocaleFromPath('/')).toBe('en');
+    expect(getLocaleFromPath('/')).toBe('zh-CN');
   });
 
   it('returns the default locale when no recognized prefix is present', () => {
-    expect(getLocaleFromPath('/about')).toBe('en');
-    expect(getLocaleFromPath('/blog/hello-world')).toBe('en');
+    expect(getLocaleFromPath('/about')).toBe('zh-CN');
+    expect(getLocaleFromPath('/blog/hello-world')).toBe('zh-CN');
+  });
+
+  it('returns the prefixed locale when the first segment is configured', () => {
+    expect(getLocaleFromPath('/en/about')).toBe('en');
+    expect(getLocaleFromPath('/en/blog/welcome')).toBe('en');
   });
 
   it('returns the default locale when the first segment is not a configured locale', () => {
-    // Default config only has 'en' active — 'nl' is not recognized
-    expect(getLocaleFromPath('/nl/about')).toBe('en');
-    expect(getLocaleFromPath('/zh-cn/blog')).toBe('en');
+    // 'nl' is in localeNames but not in active locales — treated as unknown
+    expect(getLocaleFromPath('/nl/about')).toBe('zh-CN');
+    expect(getLocaleFromPath('/de/about')).toBe('zh-CN');
   });
 
   it('normalizes paths without a leading slash', () => {
-    expect(getLocaleFromPath('about')).toBe('en');
+    expect(getLocaleFromPath('about')).toBe('zh-CN');
+    expect(getLocaleFromPath('en/about')).toBe('en');
   });
 });
 
 describe('i18n stripLocaleFromPath()', () => {
+  it('strips a configured locale prefix from the path', () => {
+    expect(stripLocaleFromPath('/en/about')).toBe('/about');
+    expect(stripLocaleFromPath('/en')).toBe('/');
+  });
+
   it('leaves a path unchanged when the first segment is not a configured locale', () => {
     expect(stripLocaleFromPath('/about')).toBe('/about');
     expect(stripLocaleFromPath('/nl/about')).toBe('/nl/about');
@@ -101,11 +122,12 @@ describe('i18n stripLocaleFromPath()', () => {
 
 describe('i18n swapLocaleInPath()', () => {
   it('returns the path unchanged when targeting the default locale (no prefix added)', () => {
-    expect(swapLocaleInPath('/about', 'en')).toBe('/about');
+    expect(swapLocaleInPath('/about', 'zh-CN')).toBe('/about');
+    expect(swapLocaleInPath('/en/about', 'zh-CN')).toBe('/about');
   });
 
-  it('returns the same path when i18n is disabled, regardless of target', () => {
-    // With default config (single locale), localizedPath is a no-op
-    expect(swapLocaleInPath('/about', 'nl')).toBe('/about');
+  it('adds a locale prefix when swapping into a non-default locale', () => {
+    expect(swapLocaleInPath('/about', 'en')).toBe('/en/about');
+    expect(swapLocaleInPath('/en/about', 'en')).toBe('/en/about');
   });
 });

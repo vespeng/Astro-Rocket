@@ -32,10 +32,11 @@ export interface I18nConfig {
 }
 
 const i18nConfig: I18nConfig = {
-  enabled: false,
-  defaultLocale: 'en',
-  locales: ['en'],
+  enabled: true,
+  defaultLocale: 'zh-CN',
+  locales: ['zh-CN', 'en'],
   localeNames: {
+    'zh-CN': '简体中文',
     en: 'English',
     nl: 'Nederlands',
     de: 'Deutsch',

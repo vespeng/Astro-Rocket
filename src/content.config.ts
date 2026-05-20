@@ -18,7 +18,7 @@ const blog = defineCollection({
       svgSlug: z.string().optional(),
       draft: z.boolean().default(false),
       featured: z.boolean().default(false),
-      locale: z.enum(['en', 'es', 'fr']).default('en'),
+      locale: z.enum(['zh-CN', 'en', 'es', 'fr']).default('zh-CN'),
       /** Optional FAQs — when set, emit FAQ JSON-LD alongside the BlogPosting schema. */
       faqs: z
         .array(

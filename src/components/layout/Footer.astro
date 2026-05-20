@@ -145,6 +145,11 @@ const socialIcons: Record<string, string> = {
 function getSocialIcon(platform: string): string {
   return socialIcons[platform] || platform;
 }
+
+// Regional compliance row — only renders when icpNumber is set.
+const compliance = siteConfig.compliance;
+const showCompliance = !!compliance?.icpNumber;
+const icpHref = compliance?.icpLink || 'https://beian.miit.gov.cn/';
 ---
 
 <footer class={footerClasses} {...attrs}>
@@ -401,4 +406,41 @@ function getSocialIcon(platform: string): string {
 
   {/* Default slot for additional content */}
   <slot />
+
+  {/* Regional compliance sub-footer row — sub-bar pattern used by most
+      Chinese sites (Bilibili, Zhihu). Only renders when icpNumber is set. */}
+  {showCompliance && (
+    <div class="border-t border-border bg-surface-secondary/50 py-3">
+      <div class={cn('mx-auto px-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-foreground-muted', maxWidthClass)}>
+        <a
+          href={icpHref}
+          class="hover:text-foreground transition-colors"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {compliance!.icpNumber}
+        </a>
+        {compliance!.publicSecurityNumber && (
+          <a
+            href={compliance!.publicSecurityLink || '#'}
+            class="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {compliance!.publicSecurityBadge && (
+              <img
+                src={compliance!.publicSecurityBadge}
+                alt=""
+                class="h-3.5 w-3.5"
+                width="14"
+                height="14"
+                loading="lazy"
+              />
+            )}
+            <span>{compliance!.publicSecurityNumber}</span>
+          </a>
+        )}
+      </div>
+    </div>
+  )}
 </footer>

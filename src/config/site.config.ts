@@ -94,6 +94,25 @@ export interface SiteConfig {
    */
   i18n?: I18nConfig;
   /**
+   * Regional compliance — render a thin sub-footer row with legal
+   * registration info below the main footer. Designed for jurisdictions
+   * that require visible registration numbers (e.g. China's ICP / MIIT
+   * filing and 公安备案 / Public Security Network Record). Leave the
+   * fields empty to hide the row entirely.
+   */
+  compliance?: {
+    /** ICP / MIIT filing number, e.g. "京ICP备12345678号-1". Required to render the row. */
+    icpNumber?: string;
+    /** Link target for the ICP number. Defaults to https://beian.miit.gov.cn/ when omitted. */
+    icpLink?: string;
+    /** Public Security Network Record number (公安备案 / 公网安备), e.g. "京公网安备 11010102001234号". */
+    publicSecurityNumber?: string;
+    /** Link target for the Public Security number, e.g. https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=... */
+    publicSecurityLink?: string;
+    /** Path to the Public Security badge image, e.g. "/beian-badge.png" (place file in /public). */
+    publicSecurityBadge?: string;
+  };
+  /**
    * Branding configuration
    * Logo files: Replace SVGs in src/assets/branding/
    * Favicon: Replace in public/favicon.svg
@@ -177,6 +196,14 @@ const siteConfig: SiteConfig = {
     },
   },
   i18n: i18nConfig,
+  compliance: {
+    // Fill these in with your registration numbers — leave empty to hide the row.
+    icpNumber: '',
+    icpLink: 'https://beian.miit.gov.cn/',
+    publicSecurityNumber: '',
+    publicSecurityLink: '',
+    publicSecurityBadge: '',
+  },
   branding: {
     logo: {
       alt: 'Astro Rocket',
