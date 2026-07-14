@@ -341,42 +341,56 @@
     isolation: isolate;
     background: linear-gradient(to bottom, var(--color-brand-500) 0%, #000 100%);
   }
+  /* The hero panel stays dark in light mode, so its text needs the same
+     hierarchy the panel has in dark mode: a near-white heading (91%
+     lightness), secondary text at 83%, and a clearly muted description at
+     68% — tinted with the active theme's brand hue. The on-invert tokens
+     are the fallback for browsers without relative color syntax; they are
+     hue-correct but lighter, so text stays readable there too. */
   html:not(.dark) .hero-dark-gradient {
-    --color-foreground:           oklch(91% 0.008 250);
-    --color-foreground-secondary: oklch(82% 0.012 250);
-    --color-foreground-muted:     oklch(68% 0.01 250);
+    --color-foreground:           var(--on-invert);
+    --color-foreground-secondary: var(--on-invert-secondary);
+    --color-foreground-muted:     var(--on-invert-muted);
     --color-background:           var(--surface-invert);
     --color-secondary:            var(--surface-invert-secondary);
     --color-secondary-hover:      var(--surface-invert-tertiary);
-    --color-ring:                 oklch(91% 0.008 250);
+    --color-ring:                 var(--on-invert);
+  }
+  @supports (color: oklch(from red 50% 0.1 h)) {
+    html:not(.dark) .hero-dark-gradient {
+      --color-foreground:           oklch(from var(--color-brand-500) 91% 0.010 h);
+      --color-foreground-secondary: oklch(from var(--color-brand-500) 83% 0.015 h);
+      --color-foreground-muted:     oklch(from var(--color-brand-500) 68% 0.012 h);
+      --color-ring:                 oklch(from var(--color-brand-500) 91% 0.010 h);
+    }
   }
 
-  /* H1 spans: first span uses remapped foreground (near-white), remaining
-     spans use pure #fff. Mirrors the dark-mode treatment. */
-  html:not(.dark) .hero-dark-gradient h1 > span:first-of-type {
+  /* H1 spans: one colour for every span, matching dark mode's uniform
+     treatment. */
+  html:not(.dark) .hero-dark-gradient h1 > span {
     color: var(--color-foreground);
-    -webkit-text-fill-color: currentColor;
-  }
-  html:not(.dark) .hero-dark-gradient h1 > span:not(:first-of-type) {
-    color: #fff;
     -webkit-text-fill-color: currentColor;
   }
 
   /* Primary CTA — near-white gradient pill. Targets .btn-primary, which is
      the homepage primary CTA marker (added by the primary button variant). */
+  /* !important throughout: the Button component's own light-mode styles
+     (brand-700 fill, brand-800 hover) otherwise win the cascade for
+     background-color, so hovering or tapping the near-white hero pill
+     flashed it dark blue. */
   html:not(.dark) .hero-dark-gradient .btn-primary {
-    background-color: var(--color-foreground);
+    background-color: var(--color-foreground) !important;
     background-image: linear-gradient(
       180deg,
       var(--color-foreground) 0%,
       color-mix(in oklch, var(--color-foreground) 55%, var(--color-foreground-secondary)) 100%
-    );
-    border: 1px solid var(--color-foreground-secondary);
-    color: var(--color-background);
+    ) !important;
+    border: 1px solid var(--color-foreground-secondary) !important;
+    color: var(--color-background) !important;
   }
   html:not(.dark) .hero-dark-gradient .btn-primary:hover {
-    background-image: none;
-    background-color: color-mix(in oklch, var(--color-foreground) 90%, transparent);
+    background-image: none !important;
+    background-color: color-mix(in oklch, var(--color-foreground) 90%, transparent) !important;
   }
 
   html:not(.dark) .hero-dark-gradient .border-foreground\/25 {
@@ -1359,4 +1373,12 @@
   .group:hover [data-icon='arrow-left'] {
     transform: none;
   }
+}
+
+/* Light mode: tile cards use the tertiary surface, which sits very close to
+   the secondary section background behind them. Cards on secondary sections
+   switch to the page-white surface instead; dark mode keeps the tertiary
+   surface everywhere. */
+html:not(.dark) .bg-background-secondary .bg-background-tertiary {
+  background-color: var(--color-background);
 }

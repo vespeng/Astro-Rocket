@@ -13,6 +13,7 @@
     "sectionLanguage": "Taal",
     "sectionConnect": "Volgen",
     "items": {
+      "home": "Home",
       "services": "Diensten",
       "projects": "Projecten",
       "blog": "Blog",
@@ -49,13 +50,13 @@
     "shareOn": "Deel op {platform}",
     "copyLink": "Link kopiëren",
     "metaTitle": "Blog",
-    "metaDescription": "Artikelen over webdesign, ontwikkeling en het web door Astro Rocket.",
+    "metaDescription": "De Astro Rocket-blog: praktische gidsen voor het instellen, configureren en bouwen met het thema.",
     "heroBadge": "Alle berichten",
-    "heroDescription": "Artikelen over Astro, webprestaties, designsystemen en bouwen met Astro Rocket.",
+    "heroDescription": "Alles wat je over Astro\u00a0Rocket moet weten, uitgelegd in praktische gidsen.",
     "allPosts": "Alle berichten",
     "noPosts": "Geen berichten gevonden",
     "pageMetaTitle": "Blog — Pagina {page}",
-    "pageMetaDescription": "Pagina {page} van {total} — artikelen over Astro, webprestaties, design en het web.",
+    "pageMetaDescription": "Pagina {page} van {total} — praktische gidsen voor het instellen, configureren en bouwen met Astro Rocket.",
     "pageBadge": "Pagina {page} van {total}",
     "newestPosts": "Nieuwste berichten",
     "tagMetaTitle": "#{tag} — Blog",
@@ -180,7 +181,8 @@
     "watchOn": "Bekijk op YouTube"
   },
   "footer": {
-    "copyright": "© {year} {siteName}. Alle rechten voorbehouden.",
+    "copyright": "© {year} {siteName}",
+    "credit": "Thema door <a href=\"https://hansmartens.dev\" class=\"transition-colors hover:text-foreground\" target=\"_blank\" rel=\"noopener noreferrer\">Hans Martens</a>",
     "builtWith": "Gebouwd met Astro Rocket",
     "followOn": "Volg ons op {platform}"
   },
@@ -188,34 +190,71 @@
     "about": {
       "meta": {
         "title": "Over — Gratis open-source Astro 7 thema",
-        "description": "Astro Rocket is een gratis, open-source Astro 7 thema gebouwd rond een complete componentbibliotheek: 57 ontworpen componenten, 12 kleurthema's, ingebouwde i18n en donkere modus."
+        "description": "Wat Astro Rocket is en hoe het gebouwd is: een gratis, razendsnel Astro 7 starter-thema met 57 ontworpen componenten, 12 kleurthema's, ingebouwde i18n en donkere modus."
       },
       "hero": {
         "badge": "Over",
         "titleLead": "Astro Rocket —",
-        "typingWords": ["Astro 7 Thema", "Componentbibliotheek", "12 Thema's", "57+ Componenten", "Donkere modus", "Ingebouwde i18n", "Zero-config SEO"],
-        "description": "Een gratis, open-source Astro 7 thema — een complete componentbibliotheek om mooie websites mee te bouwen, zonder vanaf nul te beginnen."
+        "typingWords": ["Razendsnel", "Starter-thema", "57 Componenten", "12 Thema's", "Donkere modus", "Ingebouwde i18n"],
+        "typingWordsMobile": ["Razendsnel", "Starter-thema", "12 Thema's", "Donkere modus", "Ingebouwde i18n"],
+        "description": "Een gratis, open-source Astro 7 starter-thema om alles op te bouwen."
       },
-      "intro": {
-        "badge": "Gratis & open source",
-        "heading": "Een stevige basis voor elk project",
-        "paragraphs": [
-          "Astro Rocket is een gratis, open-source thema gebouwd op Astro 7, ontworpen rond een complete componentbibliotheek: 57 ontworpen componenten, 12 met de hand gemaakte kleurthema's, donkere modus, ingebouwde i18n en een blog — zodat je een mooie website bouwt in plaats van boilerplate.",
-          "Het is gratis, MIT-gelicentieerd en vermeld in de officiële Astro-themamap. Kloon het, pas het aan en lanceer iets waar je trots op bent."
-        ],
-        "facts": [
-          { "icon": "rocket", "title": "Astro 7", "description": "Gebouwd op de nieuwste Astro-release." },
-          { "icon": "layout", "title": "12 thema's", "description": "Wissel van thema met één regel." },
-          { "icon": "code-2", "title": "57+ componenten", "description": "Samen te stellen, productieklaar." },
-          { "icon": "sparkles", "title": "Donkere modus", "description": "Ingebouwd, geen extra configuratie nodig." },
-          { "icon": "award", "title": "Ingebouwde i18n", "description": "Meertalige ondersteuning standaard." },
-          { "icon": "zap", "title": "Zero-config SEO", "description": "Gestructureerde data & metatags inbegrepen." }
+      "whatYouGet": {
+        "badge": "Wat je krijgt",
+        "heading": "Alles wat een echte website nodig heeft",
+        "lead": "De componentenbibliotheek is het hart van het thema. Al het andere dat een echte website nodig heeft, is al aan boord.",
+        "items": [
+          {
+            "icon": "component",
+            "title": "57 ontworpen componenten",
+            "description": "Van knoppen tot complete hero-secties: getypeerd, toegankelijk, consistent en gedocumenteerd in een live showcase."
+          },
+          {
+            "icon": "layout",
+            "title": "Pagina's om mee te starten",
+            "description": "Home, over, diensten, contact, blog, projecten en 404, volledig ontworpen en responsive, klaar om je eigen te maken."
+          },
+          {
+            "icon": "palette",
+            "title": "12 kleurthema's",
+            "description": "Wissel het complete kleurenpalet live vanuit de header. Inclusief lichte en donkere modus."
+          },
+          {
+            "icon": "book-open",
+            "title": "Blog met inhoudsopgave",
+            "description": "MDX, RSS, tags, reacties, gerelateerde posts en een scroll-spy inhoudsopgave. Schrijven en publiceren."
+          },
+          {
+            "icon": "image",
+            "title": "Projecten met galerijen",
+            "description": "Een portfoliosectie met fotogalerijen, videoslides, tags en een eigen inhoudsopgave."
+          },
+          {
+            "icon": "globe",
+            "title": "Volledige i18n, opt-in",
+            "description": "Blog, projecten, navigatie, formulieren en 404: allemaal per taal gelokaliseerd. Standaard uit, zonder kosten als je het niet gebruikt."
+          },
+          {
+            "icon": "search",
+            "title": "Zoeken op de site",
+            "description": "Snelle statische zoekfunctie (Pagefind) met een ⌘K-venster: nul JavaScript tot het opent."
+          },
+          {
+            "icon": "trending-up",
+            "title": "SEO-toolkit",
+            "description": "Metadata, sitemaps, structured data en OG-afbeeldingen, direct goed uit de doos."
+          },
+          {
+            "icon": "server",
+            "title": "Formulieren & deploy",
+            "description": "Spam-beschermde contact- en nieuwsbriefformulieren, en met één schakelaar deployen naar Vercel, Netlify of Cloudflare."
+          }
         ]
       },
       "principles": {
         "badge": "Ontwerpprincipes",
         "heading": "Met intentie gebouwd",
-        "lead": "Elke keuze in Astro Rocket — van componentstructuur tot standaardconfiguratie — komt voort uit dezelfde drie principes.",
+        "lead": "Elke keuze in Astro Rocket, van componentstructuur tot standaardconfiguratie, komt voort uit dezelfde drie principes.",
         "items": [
           { "icon": "zap", "title": "Prestaties eerst", "description": "Standaard nul JavaScript. Elk component is geoptimaliseerd voor snelheid, Core Web Vitals en compacte output." },
           { "icon": "award", "title": "Ontwikkelaarservaring", "description": "Overal TypeScript, verstandige standaardinstellingen en een componentbibliotheek die je zo in elke pagina laat vallen." },
@@ -225,7 +264,7 @@
       "stack": {
         "badge": "Tools & techniek",
         "title": "De stack",
-        "description": "De technologieën achter Astro Rocket — gekozen voor prestaties, een uitstekende ontwikkelaarservaring en betrouwbaarheid op de lange termijn."
+        "description": "De technologieën achter Astro Rocket, gekozen voor prestaties, een uitstekende ontwikkelaarservaring en betrouwbaarheid op de lange termijn."
       },
       "faq": {
         "badge": "Goed om te weten",
@@ -366,7 +405,7 @@
         "badge": "Start een project",
         "titleLead": "Vertel me over je",
         "titleHighlight": "nieuwe project",
-        "description": "Ik ontwerp en bouw nieuwe websites vanaf nul — elk project, van begin tot eind, door mij. Deel hieronder een paar details en ik reageer binnen 1 werkdag."
+        "description": "Ik hoor graag van je. Stuur een bericht via het formulier hieronder, of gebruik een van de andere kanalen hieronder."
       },
       "formTitle": "Projectdetails",
       "channelsTitle": "Andere kanalen",
@@ -379,14 +418,15 @@
     "home": {
       "meta": {
         "title": "Gratis open-source Astro 7 thema",
-        "description": "Een gratis, open-source Astro 7 thema: een complete componentbibliotheek om mooie websites mee te bouwen — 12 kleurthema's, 57+ componenten, ingebouwde i18n en donkere modus."
+        "description": "Astro Rocket is een gratis, razendsnel Astro 7 starter-thema om alles op te bouwen — met 57+ ontworpen componenten, 12 kleurthema's, donkere modus en ingebouwde i18n aan boord."
       },
       "hero": {
         "badge": "Beschikbaar voor nieuwe projecten",
         "titleLine1": "Astro Rocket —",
         "titleLine2": "Webdesigner",
         "titleLine3": "& Ontwikkelaar",
-        "description": "Een gratis Astro 7 thema: 57+ ontworpen componenten, 12 prachtige kleurthema's, donkere modus — een complete componentbibliotheek om alles op te bouwen.",
+        "description": "Een gratis, razendsnel Astro 7 starter-thema om alles op te bouwen: 57+ ontworpen componenten, 12 kleurthema's en donkere modus.",
+        "descriptionMobile": "Een gratis, razendsnel Astro 7 starter-thema om alles op te bouwen, met 57+ ontworpen componenten.",
         "github": "Bekijk op GitHub",
         "getStarted": "Aan de slag"
       },
