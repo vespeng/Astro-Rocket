@@ -166,7 +166,7 @@ const languageAlternates = Object.fromEntries(
           </div>
 
           <footer class="border-border mt-12 border-t pt-8 flex justify-center" data-reveal>
-            <Button href={projectsHref} variant="secondary" size="sm">
+            <Button href={projectsHref} variant="brand-outline" size="sm">
               <Icon name="arrow-left" size="sm" />
               {t('projects.backToProjects', locale)}
             </Button>
@@ -218,7 +218,9 @@ const languageAlternates = Object.fromEntries(
                       {project.data.tags.map((tag, i) => (
                         <>
                           {i === 3 && <div class="basis-full" aria-hidden="true"></div>}
-                          <Badge variant="brand">#{tag}</Badge>
+                          <span class="inline-flex items-center rounded-full bg-transparent px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:text-brand-400 ring-1 ring-inset ring-brand-500/40 transition-colors group-hover:ring-brand-500/80">
+                            #{tag}
+                          </span>
                         </>
                       ))}
                     </div>
@@ -235,7 +237,10 @@ const languageAlternates = Object.fromEntries(
     <section class="relative z-10 py-[var(--space-section-md)] bg-background border-t border-border">
       <!-- Mobile: flat section, no glitch band -->
       <div class="glitch:hidden mx-auto max-w-2xl px-6 text-center" data-reveal>
-        <Badge variant="brand" pill class="mb-6">{t('projects.ctaBadge', locale)}</Badge>
+        <Badge variant="brand" pill class="mb-6">
+          <Icon name="message-circle" size="sm" />
+          {t('projects.ctaBadge', locale)}
+        </Badge>
         <h2 class="font-display text-4xl font-bold text-foreground mb-4 text-balance">
           {t('projects.closingHeading', locale)}
         </h2>
@@ -247,7 +252,7 @@ const languageAlternates = Object.fromEntries(
             {t('projects.ctaPrimary', locale)}
             <Icon name="arrow-right" size="sm" />
           </Button>
-          <Button size="lg" variant="outline" href={projectsHref}>
+          <Button size="lg" variant="brand-outline" href={projectsHref}>
             {t('projects.allProjects', locale)}
             <Icon name="arrow-right" size="sm" />
           </Button>
@@ -278,7 +283,7 @@ const languageAlternates = Object.fromEntries(
 
   <Footer
     slot="footer"
-    layout="simple"
+    layout="centered"
     background="secondary"
     maxWidth="7xl"
   />
