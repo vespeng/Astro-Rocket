@@ -859,27 +859,16 @@
   }
 
   .prose a {
-    /* #551: content links carry the brand foreground. */
-    color: var(--color-brand-700);
+    color: var(--color-foreground);
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-color: var(--color-brand-500);
-    transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+    transition: text-decoration-color var(--transition-fast);
   }
 
   .prose a:hover {
-    color: var(--color-brand-800);
-    text-decoration-color: var(--color-brand-800);
-  }
-
-  html.dark .prose a {
-    color: var(--color-brand-400);
-  }
-
-  html.dark .prose a:hover {
-    color: var(--color-brand-300);
-    text-decoration-color: var(--color-brand-300);
+    text-decoration-color: var(--color-foreground);
   }
 
   .prose strong {
@@ -1418,63 +1407,40 @@ summary {
   cursor: pointer;
 }
 
-/* #551: the brand foreground marks clickable controls — header pickers,
-   search, hamburger, and the back-to-top button. The floating header's
-   at-rest glass rules are more specific and keep their tuned colours. */
-.search-trigger,
-.ttg-trigger,
-.lang-trigger,
-.theme-dropdown-wrapper > button,
-.hdr-hamburger,
-#back-to-top {
-  color: var(--color-brand-700);
-}
-html.dark .search-trigger,
-html.dark .ttg-trigger,
-html.dark .lang-trigger,
-html.dark .theme-dropdown-wrapper > button,
-html.dark .hdr-hamburger,
-html.dark #back-to-top {
-  color: var(--color-brand-400);
-}
-/* Their pill borders join the brand border language of cards and the
-   brand-outline button (brand-500/40). The floating header's at-rest
-   glass rules are more specific and keep their tuned borders. */
-.search-trigger,
-.ttg-trigger,
-.lang-trigger,
-.theme-dropdown-wrapper > button {
-  border-color: color-mix(in oklch, var(--color-brand-500) 40%, transparent);
-}
-.search-trigger:hover,
-.ttg-trigger:hover,
-.lang-trigger:hover,
-.theme-dropdown-wrapper > button:hover {
-  border-color: color-mix(in oklch, var(--color-brand-500) 80%, transparent);
-}
-
-/* #551: enabled form elements signal interactivity with a brand border;
-   checks, radios, and ranges pick up the brand accent colour. */
-input:not([type='checkbox']):not([type='radio']):not([type='range']):not(:disabled),
-textarea:not(:disabled),
-select:not(:disabled) {
-  border-color: color-mix(in oklch, var(--color-brand-500) 40%, transparent);
-}
-input[type='checkbox'],
-input[type='radio'],
-input[type='range'] {
-  accent-color: var(--color-brand-500);
-}
-
-/* #551: in dark mode the project hero's live-site button and the mobile
-   menu's CTA keep their light primary fill, but the text and icon go brand
-   for consistency. brand-700 at rest and brand-800 on the darker hover fill
-   clear WCAG AA on every theme (worst case teal: 4.62:1 / 6.21:1). */
+/* The project hero's live-site button and the mobile menu's CTA are solid
+   brand in dark mode too, mirroring the light-mode primary: brand-600 fill,
+   brand-700 hover, white label. The same four cooler hues as light mode
+   (cyan/emerald/sky/teal) sit on brand-700/800 so the white text keeps
+   WCAG AA — worst case across all 12 themes is 4.54:1 (green, at rest). */
 html.dark .btn-primary.project-live-btn,
 html.dark .mobile-menu-cta-wrap .btn-primary {
-  color: var(--color-brand-700);
+  background-color: var(--color-brand-600);
+  background-image: none;
+  border-color: transparent;
+  color: white;
 }
 html.dark .btn-primary.project-live-btn:hover,
 html.dark .mobile-menu-cta-wrap .btn-primary:hover {
-  color: var(--color-brand-800);
+  background-color: var(--color-brand-700);
+  background-image: none;
+}
+html.dark[data-theme="cyan"] .btn-primary.project-live-btn,
+html.dark[data-theme="emerald"] .btn-primary.project-live-btn,
+html.dark[data-theme="sky"] .btn-primary.project-live-btn,
+html.dark[data-theme="teal"] .btn-primary.project-live-btn,
+html.dark[data-theme="cyan"] .mobile-menu-cta-wrap .btn-primary,
+html.dark[data-theme="emerald"] .mobile-menu-cta-wrap .btn-primary,
+html.dark[data-theme="sky"] .mobile-menu-cta-wrap .btn-primary,
+html.dark[data-theme="teal"] .mobile-menu-cta-wrap .btn-primary {
+  background-color: var(--color-brand-700);
+}
+html.dark[data-theme="cyan"] .btn-primary.project-live-btn:hover,
+html.dark[data-theme="emerald"] .btn-primary.project-live-btn:hover,
+html.dark[data-theme="sky"] .btn-primary.project-live-btn:hover,
+html.dark[data-theme="teal"] .btn-primary.project-live-btn:hover,
+html.dark[data-theme="cyan"] .mobile-menu-cta-wrap .btn-primary:hover,
+html.dark[data-theme="emerald"] .mobile-menu-cta-wrap .btn-primary:hover,
+html.dark[data-theme="sky"] .mobile-menu-cta-wrap .btn-primary:hover,
+html.dark[data-theme="teal"] .mobile-menu-cta-wrap .btn-primary:hover {
+  background-color: var(--color-brand-800);
 }
