@@ -8,6 +8,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Newsletter signup on the blog** — the `NewsletterForm` component and the `/api/newsletter` endpoint both shipped already, but no page used either. The form now appears in the "follow along" section at the foot of the blog index and of every post, under the RSS and social links. It is off by default: set `RESEND_API_KEY` and `RESEND_AUDIENCE_ID`, then `newsletter.enabled` in `site.config.ts`. Without the keys the endpoint reports that it is not configured, so no site is left showing a form that fails on submit. Text comes from the existing `newsletter.*` locale keys, in English and Dutch.
+- **`NewsletterForm` on the components page** — the patterns section showed `SearchInput` but not the newsletter form, which left the component hard to find. Both layouts are shown: the default, which puts the field and button side by side from `sm` up, and the stacked one for narrow columns.
+- **`RESEND_AUDIENCE_ID` in the environment schema** — the newsletter endpoint read it through `import.meta.env`, skipping the typing and validation every other secret gets. It is now declared in `astro.config.mjs` alongside `RESEND_API_KEY`.
+
+### Changed
+
+- **The table of contents now sits on the right** — `articleFeatures.toc.sidebarPosition` ships as `'right'`, the usual side for an article and the side the layouts already fell back to when the setting was omitted. Set it back to `'left'` in `site.config.ts` to keep the previous placement.
+- **Blog posts and project pages have a framed reading surface** — the article sits in a card with a neutral border, matching the TOC card beside it. The border stays neutral rather than brand-tinted: an accent suits a small card, while the same tint around a full-length article reads as decoration. The frame starts at the `sm` breakpoint, so a phone held upright keeps the full screen width for the text.
+- **`NewsletterForm` redesigned to sit anywhere** — a mail icon in the field, a button that goes full width on a phone and keeps its natural width from `sm` up, and a reserved line for the status message so nothing below the form jumps when it appears. New optional `heading`, `description` and `note` props make it a complete block on its own; `size` and `layout` (`'auto'` or `'stacked'`) cover narrow columns and footers, and `buttonClass` lets a section pass the theme's `cta-btn-brand` / `hero-btn-brand` so the submit button matches the other actions around it in both colour modes. The field now carries an accessible name, and the status line is announced with `role="status"`.
+
+### Fixed
+
+- **Light screenshots in a project hero had no visible edge** — the hero frame's light-mode ring was 5% black, which against a white page is close to invisible. A screenshot of a light interface therefore ended where its shadow began, and the shadow read as the outline rather than as depth. The ring now uses the standard border colour. Dark screenshots and dark mode are unchanged, and the shadow itself was not touched.
+- **The newsletter honeypot never ran** — the form rendered no hidden field, and the endpoint read `website` while the contact endpoint uses `honeypot`. The form now carries a `honeypot` field and the endpoint reads that name, so the bot check happens before validation as it was meant to.
+- **Cloudflare deploy secrets** — the deployment section named `NEWSLETTER_API_KEY`, which nothing in the theme reads. It now names `RESEND_AUDIENCE_ID`, which is what the newsletter endpoint actually needs.
+
+## [2.2.0] — 2026-07-27
+
+### Added
+
+- **Umami analytics, built in** — Umami joins Google Analytics 4 and Google Tag Manager as a supported provider. Set `PUBLIC_UMAMI_WEBSITE_ID` and the tracking script loads itself; `PUBLIC_UMAMI_SRC` defaults to Umami Cloud and can point at a self-hosted instance instead. Umami sets no cookies, so it loads directly and is not gated by the cookie-consent flow.
+- **`/llms.txt`** — a short, plain-Markdown map of the site for language models, following the [llmstxt.org](https://llmstxt.org) proposal. Generated at build time from `site.config.ts` and the content collections, so it describes the site you built and never drifts from the real pages. `robots.txt` points at it.
+- **`AGENTS.md`** — documentation of this codebase for an AI agent helping someone build a site on the theme: where settings, content and interface text live, that page copy sits in the locale files rather than the page files, the conventions worth keeping, and the mistakes that are easy to make.
+- **`SECURITY.md`** — supported versions and a private route for reporting vulnerabilities, through GitHub Security Advisories or email rather than a public issue.
+- **A Security section in the README** — the theme's static-by-design attack surface, how the contact and newsletter endpoints handle input, and why `pnpm audit` reports advisories that live only in the deploy adapters' build tooling and never reach the deployed site.
+- **"Work with me" homepage section** — a new four-card section (custom design, a lightning-fast website, found by Google and AI, zero maintenance) between the services cards and the portfolio, closing with a "Read my services page" button. Driven by new `pages.home.workWithMe` keys in `en.json`/`nl.json`. The homepage zebra rebalances around it: the sections below flip shade and the landing footer returns to the default background.
+- **Questions & answers on the services page** — a two-card FAQ accordion with ten buying questions (pricing, timelines, ownership, maintenance) between the process and the closing CTA, in the same pattern as the About page FAQ. New `pages.services.faq` keys in both locale files, and the services footer flips to `secondary` to keep the page's alternation intact.
+- **Two guides on the theme blog** — one on the Umami integration, and one on updating the theme without losing your content (the git-based upstream-remote workflow, which folders hold your own content, and how to read a merge conflict).
+
+### Fixed
+
+- **Single project images are no longer cropped** — a project hero with one image renders at its natural aspect ratio instead of being cut to a fixed 16:9 frame, so nothing important, such as the browser header of a screenshot, is sliced off. Video slides and multi-image galleries keep the uniform 16:9 frame for consistent swiping.
+- **About-teaser tiles invisible in light mode on secondary sections** — the light-mode surface swap (tertiary tiles turn page-white inside secondary sections) also fired for tiles nested inside an elevated card, leaving white tiles on the card's white surface. A scoped exception keeps the tertiary tint one nesting level deeper, verified across all 13 colour themes in both modes.
+- **The services Design section animated off-screen** — it carried `data-reveal-eager`, which reveals shortly after load regardless of scroll position. On mobile the tall hero pushes the section below the fold, so the animation played unseen and the section looked dead once reached. It now reveals on entering the viewport, like the sections below it, and its two blocks stagger left-to-right to match them.
+- **Services hero bottom spacing** — the hero ends with three jump buttons, which carry no trailing margin, leaving it around 32px tighter than heroes that end with a description. It now lines up with the contact, blog, projects and about heroes at every width.
+
+### Changed
+
+- **The demo speaks as a complete freelance business** — the services page and the homepage services cards are rewritten with the full content of a real freelance Astro practice: three service deep-dives with concrete "what you get" lists, a four-step project process with fixed-price framing, and honest buying answers. All copy ships in English and Dutch. Sites pulling this update should take the view files and the locale dictionaries together, since the views read the new keys.
+
+### Security
+
+- **Contact form email escaping** — user-submitted name, email, and message are now HTML-escaped before they're placed in the notification email, preventing injected markup (links, tracking pixels, spoofed content) from rendering in the site owner's inbox.
+
 ## [2.1.0] — 2026-07-16
 
 ### Added

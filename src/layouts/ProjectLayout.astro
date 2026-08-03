@@ -9,16 +9,15 @@ import Breadcrumbs from '@/components/seo/Breadcrumbs.astro';
 import ProjectHero from '@/components/projects/ProjectHero.astro';
 import TableOfContents from '@/components/blog/TableOfContents.astro';
 import LetterGlitchBand from '@/components/patterns/LetterGlitchBand.astro';
-import Card from '@/components/ui/data-display/Card/Card.astro';
+import ProjectCard from '@/components/projects/ProjectCard.astro';
 import Badge from '@/components/ui/data-display/Badge/Badge.astro';
 import Button from '@/components/ui/form/Button/Button.astro';
 import Icon from '@/components/ui/primitives/Icon/Icon.astro';
 import siteConfig from '@/config/site.config';
-import { getProjectOgPath } from '@/lib/og';
+import { getDefaultOgPath, getProjectOgPath, isShareableImage } from '@/lib/og/svg';
 import { t, getLocaleFromPath, localizedPath, getLocales } from '@/i18n';
 import {
   getProjectSlug,
-  getProjectUrl,
   getProjectsBaseUrl,
   getProjectTranslations,
 } from '@/lib/projects';
@@ -59,10 +58,18 @@ const {
 
 const locale = getLocaleFromPath(Astro.url.pathname);
 
-// Prefer the project's own image; otherwise serve the per-project dynamic OG
-// image (see src/pages/og/projects/[slug].svg.ts). `slug` is the full
+// Raster only — see the note in BlogLayout: an SVG cover cannot serve as a
+// share image, so projects without a screenshot fall back to the card generated
+// at build time (see src/pages/og/projects/[slug].png.ts). `slug` is the full
 // (locale-prefixed) project id, so strip the locale to match the OG route.
-const ogImage = image?.src || (slug ? getProjectOgPath(getProjectSlug(slug, locale)) : siteConfig.ogImage);
+const ogImage =
+  image && isShareableImage(image.src)
+    ? image.src
+    : slug
+      ? getProjectOgPath(getProjectSlug(slug, locale))
+      : getDefaultOgPath();
+
+const ogImageAlt = ogImage === image?.src ? imageAlt || title : title;
 
 // Mirror the blog TOC wiring — projects use the same site-wide config.
 const tocConfig = siteConfig.articleFeatures?.toc;
@@ -102,7 +109,7 @@ const languageAlternates = Object.fromEntries(
   title={title}
   description={description}
   image={ogImage}
-  imageAlt={imageAlt || title}
+  imageAlt={ogImageAlt}
   localeAlternates={projectTranslations}
 >
   <Header
@@ -151,6 +158,17 @@ const languageAlternates = Object.fromEntries(
         <div class:list={['min-w-0 max-w-4xl w-full mx-auto', sidebarActive && 'xl:mx-0']}>
           <Breadcrumbs items={breadcrumbs} class="mb-8" />
 
+          {sidebarActive && (
+            <div class="xl:hidden mb-10">
+              <TableOfContents
+                headings={headings}
+                maxDepth={tocConfig?.maxDepth ?? 3}
+                minHeadings={tocConfig?.minHeadings ?? 3}
+                collapsible
+              />
+            </div>
+          )}
+
           {inlineActive && (
             <div class="mb-10 rounded-xl border border-border bg-background-secondary p-5">
               <TableOfContents
@@ -161,8 +179,14 @@ const languageAlternates = Object.fromEntries(
             </div>
           )}
 
-          <div class="prose prose-lg max-w-none" data-reveal-content>
-            <slot />
+          <!--
+            Framed reading surface, matching the TOC card. Starts at `sm` so
+            a phone held upright keeps the full screen width for the text.
+          -->
+          <div class="sm:rounded-xl sm:border sm:border-border sm:bg-card sm:p-8 lg:p-10">
+            <div class="prose prose-lg max-w-none" data-reveal-content>
+              <slot />
+            </div>
           </div>
 
           <footer class="border-border mt-12 border-t pt-8 flex justify-center" data-reveal>
@@ -191,42 +215,11 @@ const languageAlternates = Object.fromEntries(
         <div class="mx-auto max-w-7xl px-6">
           <h2 class="font-display text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">{t('projects.moreProjects', locale)}</h2>
           <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((project) => (
-              <Card
-                variant="elevated"
-                hover
-                padding="none"
-                href={project.data.placeholder ? undefined : getProjectUrl(project.id, locale)}
-                class="group flex flex-col"
-              >
-                <div class="flex flex-1 flex-col p-6">
-                  <div class="mb-3 flex items-start justify-between gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 flex items-center justify-center text-brand-500 shrink-0">
-                      <Icon name="layers" size="sm" />
-                    </div>
-                    <Icon name="arrow-up-right" size="sm" class="text-foreground-muted group-hover:text-brand-500 transition-colors shrink-0 ml-auto" />
-                  </div>
-                  <div class="mb-2 flex items-baseline gap-2">
-                    <h3 class="font-display text-lg font-bold text-foreground">{project.data.title}</h3>
-                    {project.data.year && (
-                      <span class="text-xs text-foreground-muted">{project.data.year}</span>
-                    )}
-                  </div>
-                  <p class="text-sm text-foreground-muted leading-relaxed mb-4 flex-1 line-clamp-3">{project.data.description}</p>
-                  {project.data.tags && project.data.tags.length > 0 && (
-                    <div class="flex flex-wrap gap-1.5">
-                      {project.data.tags.map((tag, i) => (
-                        <>
-                          {i === 3 && <div class="basis-full" aria-hidden="true"></div>}
-                          <span class="inline-flex items-center rounded-full bg-transparent px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:text-brand-400 ring-1 ring-inset ring-brand-500/40 transition-colors group-hover:ring-brand-500/80">
-                            #{tag}
-                          </span>
-                        </>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </Card>
+            {/* The same card the projects index, the paginated pages, the tag
+                archives and the homepage use. `reveal={false}` because the
+                section above already carries the trigger. */}
+            {related.map((project, i) => (
+              <ProjectCard project={project} index={i} locale={locale} reveal={false} />
             ))}
           </div>
         </div>

@@ -10,20 +10,19 @@ import ShareButtons from '@/components/blog/ShareButtons.astro';
 import RelatedPosts from '@/components/blog/RelatedPosts.astro';
 import TableOfContents from '@/components/blog/TableOfContents.astro';
 import Comments from '@/components/blog/Comments.astro';
-import CTA from '@/components/ui/marketing/CTA/CTA.astro';
 import Button from '@/components/ui/form/Button/Button.astro';
 import Icon from '@/components/ui/primitives/Icon/Icon.astro';
-import LetterGlitchBand from '@/components/patterns/LetterGlitchBand.astro';
-import { resolveSocialLinks } from '@/lib/utils';
 import { createBlogPostSchema, createFAQSchema } from '@/lib/schema';
-import { getBlogOgPath } from '@/lib/og';
+import { getBlogOgPath, getDefaultOgPath, isShareableImage } from '@/lib/og/svg';
 import { t, getLocaleFromPath, localizedPath, getLocales } from '@/i18n';
 import { getPostSlug, getBlogBaseUrl } from '@/lib/blog';
 import { getPostTranslations } from '@/lib/post-links';
+import FollowAlong from '@/components/blog/FollowAlong.astro';
 
 const locale = getLocaleFromPath(Astro.url.pathname);
 
-const socialLinks = resolveSocialLinks(siteConfig.socialLinks);
+
+// Newsletter signup — opt-in, since the endpoint needs Resend keys to work.
 
 interface Props {
   title: string;
@@ -89,10 +88,22 @@ const sidebarActive = showToc && (tocLayout === 'sidebar' || tocLayout === 'auto
 const inlineActive = showToc && tocLayout === 'inline';
 const sidebarOnLeft = (tocConfig?.sidebarPosition ?? 'right') === 'left';
 
-// Prefer the post's own image; otherwise serve the per-post dynamic OG image
-// generated at build time (see src/pages/og/blog/[slug].svg.ts). Falls back to
-// the site-wide default only when slug is missing.
-const ogImage = image?.src || (slug ? getBlogOgPath(getPostSlug(slug, locale)) : siteConfig.ogImage);
+// `og:image` has to be a raster file. Social platforms render PNG/JPEG/WEBP/GIF
+// and nothing else, and the theme's blog covers are SVGs that take their colours
+// from CSS custom properties — fetched on their own, outside the page, every
+// fill resolves to nothing and the preview comes out blank. A post with a photo
+// or a screenshot keeps using it; anything else gets the card generated at build
+// time (see src/pages/og/blog/[slug].png.ts).
+const ogImage =
+  image && isShareableImage(image.src)
+    ? image.src
+    : slug
+      ? getBlogOgPath(getPostSlug(slug, locale))
+      : getDefaultOgPath();
+
+// The generated card shows the title and nothing else, so the cover's own alt
+// text would be describing a picture the preview never shows.
+const ogImageAlt = ogImage === image?.src ? imageAlt || title : title;
 
 const breadcrumbs = [
   { label: t('common.home', locale), href: localizedPath('/', locale) },
@@ -133,7 +144,7 @@ const languageAlternates = Object.fromEntries(
   title={title}
   description={description}
   image={ogImage}
-  imageAlt={imageAlt || title}
+  imageAlt={ogImageAlt}
   article={{
     publishedTime: publishedAt,
     modifiedTime: updatedAt,
@@ -192,6 +203,17 @@ const languageAlternates = Object.fromEntries(
       <!-- Breadcrumbs -->
       <Breadcrumbs items={breadcrumbs} class="mb-8" />
 
+      {sidebarActive && (
+        <div class="xl:hidden mb-10">
+          <TableOfContents
+            headings={headings}
+            maxDepth={tocConfig?.maxDepth ?? 3}
+            minHeadings={tocConfig?.minHeadings ?? 3}
+            collapsible
+          />
+        </div>
+      )}
+
       {inlineActive && (
         <div class="mb-10 rounded-xl border border-border bg-background-secondary p-5">
           <TableOfContents
@@ -203,11 +225,22 @@ const languageAlternates = Object.fromEntries(
       )}
 
       <!-- Article Content -->
-      <div
-        class="prose prose-lg max-w-none"
-        data-reveal-content
-      >
-        <slot />
+      <!--
+        The reading surface is framed like the TOC card beside it: same
+        corner radius, same surface. The border stays neutral rather than
+        brand-tinted — an accent suits a small card, but reads as
+        decoration around a full-length article, and the neutral token
+        behaves the same in every colour theme. The frame
+        starts at `sm` so a phone held upright keeps the full screen
+        width for the text.
+      -->
+      <div class="sm:rounded-xl sm:border sm:border-border sm:bg-card sm:p-8 lg:p-10">
+        <div
+          class="prose prose-lg max-w-none"
+          data-reveal-content
+        >
+          <slot />
+        </div>
       </div>
 
       <!-- Share buttons (centered, above the divider) -->
@@ -249,75 +282,12 @@ const languageAlternates = Object.fromEntries(
   )}
 
   <!-- Follow Along -->
-  <!-- Mobile: standard CTA, no LetterGlitch -->
-  <CTA variant="default" size="md" maxWidth="lg" glow={false} data-reveal class="glitch:hidden bg-background-secondary">
-    <h2 slot="heading" class="!text-4xl">{t('blog.followAlong', locale)}</h2>
-    <p slot="description" class="!text-lg text-balance">{t('blog.followAlongLead', locale)}</p>
-
-    <div class="flex flex-wrap items-center justify-center gap-3">
-      <a
-        href="/rss.xml"
-        class="inline-flex items-center gap-2 rounded-full border border-brand-500/40 bg-background px-4 py-2 text-sm font-medium text-brand-700 dark:text-brand-400 transition-colors hover:border-brand-500/80"
-      >
-        <Icon name="rss" size="sm" />
-        {t('blog.rssFeed', locale)}
-      </a>
-      {socialLinks.map((link) => (
-        <a
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-full border border-brand-500/40 bg-background px-4 py-2 text-sm font-medium text-brand-700 dark:text-brand-400 transition-colors hover:border-brand-500/80"
-        >
-          <Icon name={link.icon} size="sm" />
-          {link.label}
-        </a>
-      ))}
-      <a
-        href={`mailto:${siteConfig.email}`}
-        class="inline-flex items-center gap-2 rounded-full border border-brand-500/40 bg-background px-4 py-2 text-sm font-medium text-brand-700 dark:text-brand-400 transition-colors hover:border-brand-500/80"
-      >
-        <Icon name="mail" size="sm" />
-        {t('blog.emailLabel', locale)}
-      </a>
-    </div>
-  </CTA>
-
-  <!-- Desktop: contained LetterGlitch band with glass card -->
-  <section class="hidden glitch:block relative z-10 py-[var(--space-section-md)] bg-background-secondary">
-    <LetterGlitchBand maxWidth="7xl">
-      <h2 class="font-display text-4xl font-bold text-foreground mb-4 text-balance">{t('blog.followAlong', locale)}</h2>
-      <p class="text-lg text-foreground-muted mb-8 text-balance">{t('blog.followAlongLead', locale)}</p>
-
-      <div class="flex flex-wrap items-center justify-center gap-3">
-        <a
-          href="/rss.xml"
-          class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-brand-400 hover:bg-brand-500/20 hover:text-foreground"
-        >
-          <Icon name="rss" size="sm" />
-          {t('blog.rssFeed', locale)}
-        </a>
-        {socialLinks.map((link) => (
-          <a
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-brand-400 hover:bg-brand-500/20 hover:text-foreground"
-          >
-            <Icon name={link.icon} size="sm" />
-            {link.label}
-          </a>
-        ))}
-        <a
-          href={`mailto:${siteConfig.email}`}
-          class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-brand-400 hover:bg-brand-500/20 hover:text-foreground"
-        >
-          <Icon name="mail" size="sm" />
-          {t('blog.emailLabel', locale)}
-        </a>
-      </div>
-    </LetterGlitchBand>
-  </section>
+  <FollowAlong
+    locale={locale}
+    ctaClass="glitch:hidden bg-background-secondary"
+    bandSectionClass="hidden glitch:block relative z-10 py-[var(--space-section-md)] bg-background-secondary"
+    bandMaxWidth="7xl"
+  />
   </div>
 
   <Footer slot="footer" layout="centered" background="default" maxWidth="7xl" />

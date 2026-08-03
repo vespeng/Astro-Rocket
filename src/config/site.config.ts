@@ -1,5 +1,7 @@
 import { SITE_URL, GOOGLE_SITE_VERIFICATION, BING_SITE_VERIFICATION } from 'astro:env/server';
 import i18nConfig, { type I18nConfig } from './i18n.config';
+import { SITE_URL_FALLBACK } from './site-url';
+import { SITE_NAME, THEME_COLOR } from './branding';
 
 export { i18nConfig };
 export type { I18nConfig };
@@ -185,6 +187,20 @@ export interface SiteConfig {
     };
   };
   /**
+   * Newsletter signup, shown in the "follow along" section of the blog index
+   * and the foot of every post.
+   *
+   * Off by default, and deliberately so: the form posts to `/api/newsletter`,
+   * which needs `RESEND_API_KEY` and `RESEND_AUDIENCE_ID`. Without those the
+   * endpoint answers "Newsletter service is not configured", so a site that
+   * showed the form before its owner had a mailing list would be collecting
+   * failures. Set your keys, then turn this on.
+   */
+  newsletter?: {
+    /** Master switch — set to true to show the signup site-wide */
+    enabled: boolean;
+  };
+  /**
    * Blog listing configuration. Counts that were previously hard-coded across
    * `lib/blog.ts` and the route files live here so they're tunable in one
    * place. (The existing `blogImageOverlay` / `articleFeatures` keys are left
@@ -244,13 +260,18 @@ export interface SiteConfig {
 }
 
 const siteConfig: SiteConfig = {
-  name: 'Astro Rocket',
+  // Read from ./branding so the build-time favicon generator, which cannot
+  // import this file, uses the same values. Change them there.
+  name: SITE_NAME,
   description:
-    'Astro Rocket is a free, lightning-fast Astro 7 starter theme to build anything on — with 57+ designed components, 12 colour themes, dark mode, and built-in i18n on board.',
+    'A free, fast Astro 7 starter theme to build anything on: 44 designed components, 12 colour themes, dark mode, and built-in i18n.',
   tagline: 'Astro 7 starter theme to build anything on',
   footerNote: 'Free & open source · MIT licensed',
-  url: SITE_URL || 'https://astrorocket.dev',
-  ogImage: '/og-default.svg',
+  url: SITE_URL || SITE_URL_FALLBACK,
+  // Generated at build time from `name`, `tagline` and the brand colour below.
+  // Point this at a file in `public/` to use your own — it has to be a raster
+  // (PNG or JPEG): social platforms don't render SVG share images.
+  ogImage: '/og/default.png',
   author: 'Hans Martens',
   email: 'hello@hansmartens.dev',
   address: {
@@ -287,7 +308,7 @@ const siteConfig: SiteConfig = {
     toc: {
       enabled: true,
       layout: 'auto',
-      sidebarPosition: 'left',
+      sidebarPosition: 'right',
       minHeadings: 3,
       maxDepth: 3,
     },
@@ -335,6 +356,10 @@ const siteConfig: SiteConfig = {
       },
     },
   },
+  newsletter: {
+    // Turn on once RESEND_API_KEY and RESEND_AUDIENCE_ID are set.
+    enabled: false,
+  },
   blog: {
     postsPerPage: 12,
     tagCloudLimit: 10,
@@ -354,7 +379,7 @@ const siteConfig: SiteConfig = {
       svg: '/favicon.svg',
     },
     colors: {
-      themeColor: '#0083fe',
+      themeColor: THEME_COLOR,
       backgroundColor: '#ffffff',
     },
   },

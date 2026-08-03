@@ -26,9 +26,37 @@
 
 ---
 
+<details>
+<summary><strong>Table of contents</strong></summary>
+
+- [Overview](#overview)
+- [What Astro Rocket has to offer](#what-astro-rocket-has-to-offer)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Commands](#commands)
+- [Configuration](#configuration)
+- [Design System](#design-system)
+- [Components](#components)
+- [Content Management](#content-management)
+- [SEO](#seo)
+- [Search](#search)
+- [API Routes](#api-routes)
+- [Deployment](#deployment)
+- [Browser Support](#browser-support)
+- [Performance](#performance)
+- [Animations](#animations)
+- [Security](#security)
+- [Contributing](#contributing)
+- [License](#license)
+- [Links](#links)
+
+</details>
+
+---
+
 ## Overview
 
-Astro Rocket is a **free, lightning-fast Astro 7 starter theme to build anything on**. Its heart is a complete component library: 57 designed, accessible, TypeScript components that all speak one design language — so whatever you build with them looks right. Around that library it brings everything a real website needs: pages to start from, a full blog, search, SEO, i18n, dark mode, and 12 colour themes. It's made for web designers, developers, bloggers, and anyone who wants to build a beautiful website without starting from zero. Use all of it or only the parts you need — the website you build on it is yours.
+Astro Rocket is a **free, lightning-fast Astro 7 starter theme to build anything on**. Its heart is a complete component library: 44 designed, accessible, TypeScript components that all speak one design language — so whatever you build with them looks right. Around that library it brings everything a real website needs: pages to start from, a full blog, search, SEO, i18n, dark mode, and 12 colour themes. It's made for web designers, developers, bloggers, and anyone who wants to build a beautiful website without starting from zero. Use all of it or only the parts you need — the website you build on it is yours.
 
 Built on Astro 7 and Tailwind CSS v4.
 
@@ -47,7 +75,7 @@ Built on Astro 7 and Tailwind CSS v4.
 | **12 Colour Themes** | All 12 colour swatches are shown in the header dropdown — click one and the logo badge, blog image gradients, and every brand color update live instantly. No file edits, no rebuilds. The selector can be removed from the header once you've settled on a color. |
 | **Scroll Progress Bar** | A thin 2px brand-coloured bar on the header edge that fills as you scroll. Enabled on the homepage (above the floating header), blog index, and post pages (below the solid header). Controlled via `showScrollProgress` and `scrollProgressPosition` props on the Header component. |
 | **Design Tokens** | Three-tier token architecture (reference → semantic → component) |
-| **57 Components** | 33 UI, 7 patterns, 1 hero, 4 layout, 4 blog, 7 landing, 3 SEO — all accessible with TypeScript |
+| **44 Components** | 34 UI, 7 patterns, 2 layout, 1 hero — every entry in `component-registry.json`, all accessible with TypeScript |
 | **Auto Logo & Favicon** | First letter of your site name on brand color — generated automatically from `site.config.ts`, no design tools needed. Prefer your own logo? Set `branding.logo.image` to a file in `public/`. |
 | **Icon System** | Unified `Icon` component (Astro + React) — 350+ [Lucide](https://lucide.dev) UI icons and 3000+ [Simple Icons](https://simpleicons.org) brand icons via Iconify |
 | **Typing Effect** | Animated typing effect in the hero section |
@@ -57,6 +85,7 @@ Built on Astro 7 and Tailwind CSS v4.
 | **Colour Mode** | 3-state picker — **System / Light / Dark** with `localStorage` persistence and live OS-preference tracking under 'System'; surfaced as a pill dropdown in the header (and inside the mobile menu) |
 | **Content Collections** | Type-safe blog, pages, authors, and FAQs with Zod validation |
 | **API Routes** | Contact form and newsletter endpoints with validation |
+| **Newsletter Signup** | Optional email signup in the "follow along" section of the blog index and every post, posting to a Resend audience. Off by default — set `RESEND_API_KEY` and `RESEND_AUDIENCE_ID`, then `newsletter.enabled` in `site.config.ts`. The `NewsletterForm` component can be placed anywhere else too. See [Newsletter Signup](#newsletter-signup) |
 | **Table of Contents** | Optional table of contents on blog posts, auto-generated from MDX headings, with three layouts: inline card, sticky desktop sidebar, or `auto` (sidebar on `xl+`, inline card below). Includes `IntersectionObserver` scroll-spy. Off by default; per-post `toc: false` in frontmatter hides on a single post |
 | **Blog Comments (Giscus / Cusdis / Artalk)** | Optional comments at the bottom of blog posts via a pluggable provider — [Giscus](https://giscus.app) (GitHub Discussions), the privacy-friendly [Cusdis](https://cusdis.com) (hosted or self-hosted), or self-hosted [Artalk](https://artalk.js.org) (point `comments.artalk.server` at your own instance — use an `https://` URL in production). Choose with `comments.provider`. **Lazy-loaded** so readers who don't scroll to comments pay zero network cost; reserved `min-height` prevents CLS. Theme and language follow the site. Off by default; per-post `comments: false` in frontmatter hides on a single post |
 | **Durable Internal Links** | Link between posts by a stable canonical id with `<PostLink uid="…">` instead of a slug, so renaming a post never breaks inbound links. Ids resolve to the correct locale-aware URL at build time, and a broken reference **fails the build** rather than shipping a 404. Add an optional `uid` to a post's frontmatter to make it linkable |
@@ -225,7 +254,7 @@ astro-rocket/
 ├── src/
 │   ├── assets/              # Images and icons (processed by Astro)
 │   ├── components/
-│   │   ├── ui/              # UI component library (31 components)
+│   │   ├── ui/              # UI component library (34 components)
 │   │   │   ├── form/        # Button, Input, Textarea, Select, Checkbox, Radio, Switch
 │   │   │   ├── data-display/ # Card, Badge, Avatar, Table, Pagination, Progress, Skeleton
 │   │   │   ├── feedback/    # Alert, Toast, Tooltip
@@ -288,7 +317,7 @@ const siteConfig = {
   name: 'Your Site Name',
   description: 'Your site description for SEO',
   url: 'https://yoursite.com',
-  ogImage: '/og-default.svg',
+  ogImage: '/og/default.png',
   author: 'Your Name',
   email: 'hello@yoursite.com',
   twitter: {
@@ -317,6 +346,8 @@ That single field swaps the monogram for your image in the header, footer, and a
 
 Create a `.env` file from `.env.example`:
 
+`SITE_URL` is the one that matters everywhere: canonical tags, `og:url`, `og:image`, RSS links and the sitemap are all built from it, and your host needs it set as an environment variable too, not only in your local `.env`. Leave it unset and the build says so and falls back to `https://example.com`.
+
 ```bash
 # Required
 SITE_URL=https://yoursite.com
@@ -325,10 +356,54 @@ SITE_URL=https://yoursite.com
 PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 PUBLIC_GTM_ID=GTM-XXXXXXX
 
+# Optional - Umami (privacy-friendly, cookieless analytics)
+PUBLIC_UMAMI_WEBSITE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# PUBLIC_UMAMI_SRC=https://cloud.umami.is/script.js   # set when your snippet's src differs
+
+# Optional - Contact form and newsletter (server-side only)
+RESEND_API_KEY=your-resend-api-key
+RESEND_AUDIENCE_ID=your-audience-id
+
 # Optional - Verification
 GOOGLE_SITE_VERIFICATION=your-code
 BING_SITE_VERIFICATION=your-code
 ```
+
+Astro Rocket ships with built-in support for **Google Analytics 4**, **Google Tag Manager**, and **Umami**. For Umami, set `PUBLIC_UMAMI_WEBSITE_ID` (the UUID from your Umami dashboard) and the tracking script loads automatically. Umami is cookieless and stores no personal data, so it loads without the cookie-consent banner.
+
+Copy the Website ID **and** the script `src` out of the tracking snippet Umami shows you, and set `PUBLIC_UMAMI_SRC` whenever that `src` is not `https://cloud.umami.is/script.js` — which covers self-hosting and Umami Cloud's other instances alike. Set the **Domain** on the Umami website record to your bare hostname (`yoursite.com`), since Umami rejects events whose origin does not match it.
+
+Both are the same silent failure: the script loads, the page is fine, and nothing is recorded. After deploying, check the **Network** tab for `POST /api/send` returning 200 — a successful `script.js` request proves only that the file was fetched.
+
+### Newsletter Signup
+
+A newsletter signup can appear in the "follow along" section at the foot of the blog index and of every blog post. It is **off by default**, because the form posts to `/api/newsletter`, which needs a Resend API key and audience. Without them the endpoint answers *"Newsletter service is not configured"* — so a site that showed the form before its owner had a mailing list would only be collecting failures.
+
+To turn it on, set both variables in `.env`:
+
+```bash
+RESEND_API_KEY=your-resend-api-key
+RESEND_AUDIENCE_ID=your-audience-id
+```
+
+Then flip the switch in `src/config/site.config.ts`:
+
+```typescript
+newsletter: {
+  enabled: true,
+},
+```
+
+The form itself is the `NewsletterForm` pattern component, so you can also drop it anywhere else in your own pages:
+
+```astro
+---
+import NewsletterForm from '@/components/patterns/NewsletterForm.astro';
+---
+<NewsletterForm />
+```
+
+All of its text comes from the `newsletter.*` keys in `src/i18n/en.json`, and the props `placeholder`, `buttonText` and `successMessage` override them per usage. Submissions carry a hidden honeypot field that the endpoint checks before anything else.
 
 ---
 
@@ -466,7 +541,7 @@ Foreground tokens are documented with their contrast ratios inline. When customi
 
 ## Components
 
-Astro Rocket includes 57 components across 7 categories. All UI components use [class-variance-authority (CVA)](https://cva.style) for type-safe variant management.
+Astro Rocket includes 44 components across four categories. All UI components use [class-variance-authority (CVA)](https://cva.style) for type-safe variant management.
 
 ### UI Components (31)
 
@@ -626,9 +701,23 @@ Your content here...
 
 To link from one post to another, use `<PostLink uid="target-post-id">link text</PostLink>` in your MDX instead of a hard-coded `/blog/...` URL. The id resolves to the right URL at build time, and a broken reference fails the build — so renaming a post never leaves a dead internal link. Give a post an optional `uid` (above) to make it a link target. The [configuration guide](/blog/astro-rocket-configuration-guide) post has the full walkthrough.
 
+### Project Cards
+
+Projects live in `src/content/projects/<locale>/` (the bundled ones in `src/content/projects/en/`) as one MDX file per project. Each one carries an `icon` — any [Lucide](https://lucide.dev/icons/) name — shown on its card in the projects listing and on the homepage:
+
+```yaml
+---
+title: "E-Commerce Store"
+description: "..."
+icon: "shopping-bag"
+---
+```
+
+Give every project its own. The card is mostly text, so one repeated icon across the grid makes them read as placeholders. Unset, it falls back to `layers`.
+
 ### Project Galleries
 
-Projects live in `src/content/projects/<locale>/` (the bundled ones in `src/content/projects/en/`) as one MDX file per project, and there are two ways to show more than one image.
+There are two ways to show more than one image on a project.
 
 **1. Hero carousel (frontmatter).** Add a `gallery` array and the project hero swaps the single `image` for a swipeable carousel (touch swipe, prev/next arrows, dot indicators, keyboard navigation). The first slide is the lead image:
 
@@ -719,7 +808,11 @@ import SEO from '@/components/seo/SEO.astro';
 
 ### OG Image
 
-A static default OG image (`public/og-default.svg`) serves as the social preview for all pages. The path is set via `ogImage` in `src/config/site.config.ts`. To use a custom image for a specific page, pass it as the `image` prop to the layout component.
+Every post, project and blog tag archive gets its own 1200×630 share card, drawn at build time from the page title and your brand colour and written out as a PNG under `/og/`. Pages without a card of their own use `/og/default.png`, generated from `name` and `tagline` in `src/config/site.config.ts`. Point `ogImage` at a file in `public/` to use your own instead.
+
+A post or project that has its own **raster** cover (`.png`, `.jpg`, `.webp`, `.gif`) uses that as its share image. An SVG cover does not: social platforms don't render SVG, and the theme's cover SVGs colour themselves from CSS custom properties that only exist on the page — fetched on their own, they come out transparent. Posts with an SVG cover get the generated card instead.
+
+Cards are drawn with `sharp` using the fonts on the build machine. Hosted builders ship fonts; a bare container image may not, and the build warns if it finds none.
 
 ---
 
@@ -814,7 +907,7 @@ DEPLOY_TARGET=cloudflare pnpm build
 npx wrangler deploy
 ```
 
-The build generates the Worker and static-asset config automatically; the bundled `wrangler.toml` adds the `nodejs_compat` flag the API routes need. Prefer the dashboard? In **Workers & Pages → Create → Connect to Git**, set the build command to `DEPLOY_TARGET=cloudflare pnpm build`. Either way, add your secrets — `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `NEWSLETTER_API_KEY` — plus `SITE_URL` as environment variables so the contact form and newsletter work.
+The build generates the Worker and static-asset config automatically. The bundled `wrangler.toml` deliberately does **not** set `nodejs_compat`: the adapter prerenders every page inside workerd at build time, and that flag makes the prerender emit `[object Object]` instead of HTML for every page, without failing the build. If the contact form or newsletter need Node built-ins once deployed, set the flag on the Worker in the Cloudflare dashboard rather than in `wrangler.toml`. Prefer the dashboard? In **Workers & Pages → Create → Connect to Git**, set the build command to `DEPLOY_TARGET=cloudflare pnpm build`. Either way, add your secrets — `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_AUDIENCE_ID` — plus `SITE_URL` as environment variables so the contact form and newsletter work.
 
 ### Static export (no serverless)
 
@@ -898,6 +991,18 @@ The full animation library is defined in `src/styles/global.css`. These classes 
 | `animate-shake` | Brief shake for error feedback (400ms) |
 
 Animation delay utilities (`.delay-0` through `.delay-5`, in 50ms steps) let you stagger multiple elements into view.
+
+---
+
+## Security
+
+Astro Rocket builds to a **static site** — plain HTML, CSS, and JavaScript with no server or database in what you deploy. The attack surface is small by design.
+
+**The only server-side code** is the optional contact and newsletter endpoints (`src/pages/api/`). Both validate input with [Zod](https://zod.dev), use a honeypot against bots, and HTML-escape submitted values before placing them in the notification email. Everything else is prerendered at build time.
+
+**About `pnpm audit`.** An audit will report advisories in the dependency tree. Almost all of them come from the **build-time tooling of the deploy adapters** — Netlify and Cloudflare each bring a large local-development toolchain. That code runs only during `astro build` on your own machine; it is never part of the deployed site and never reaches a visitor.
+
+**Reporting a security issue.** If you find a real vulnerability in the theme itself, please report it privately — open a [GitHub security advisory](https://github.com/hansmartensdev/Astro-Rocket/security/advisories/new) or email hello@hansmartens.dev — rather than a public issue, so it can be fixed before it's widely known.
 
 ---
 
