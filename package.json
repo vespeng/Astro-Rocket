@@ -1,7 +1,8 @@
 {
   "name": "astro-rocket",
-  "version": "2.3.0",
-  "description": "Astro Rocket \u2014 A production-ready Astro 7 theme built on Tailwind CSS v4",
+  "version": "2.5.1",
+  "packageManager": "pnpm@10.33.0",
+  "description": "Astro Rocket — A production-ready Astro 7 theme built on Tailwind CSS v4",
   "type": "module",
   "author": "Hans Martens",
   "license": "MIT",
@@ -37,9 +38,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "pnpm lint && pnpm check && pnpm build && pnpm verify",
+    "validate": "pnpm lint && pnpm check && pnpm test:run && pnpm build && pnpm verify",
     "test": "vitest",
-    "test:e2e": "playwright test"
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.0.1",
@@ -54,7 +55,7 @@
     "@iconify-json/lucide": "^1.2.98",
     "@iconify-json/simple-icons": "^1.2.74",
     "@iconify/react": "^6.0.2",
-    "astro": "7.1.0",
+    "astro": "7.2.0",
     "astro-icon": "^1.1.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -71,7 +72,6 @@
   "devDependencies": {
     "@astrojs/check": "0.9.9",
     "@eslint/js": "^9.17.0",
-    "@playwright/test": "^1.49.0",
     "@tailwindcss/vite": "^4.3.1",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",

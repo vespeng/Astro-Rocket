@@ -8,13 +8,14 @@ on:
 
 jobs:
   quality:
-    name: Lint and type check
+    name: Lint, type check and tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # No version here on purpose: pnpm/action-setup reads `packageManager`
+      # from package.json, so CI, Docker and a developer's machine cannot
+      # drift onto three different pnpm versions.
       - uses: pnpm/action-setup@v3
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -22,6 +23,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: pnpm run check
+      - run: pnpm run test:run
 
   # Every deploy target gets built and inspected.
   #
@@ -40,9 +42,10 @@ jobs:
         target: [vercel, netlify, cloudflare]
     steps:
       - uses: actions/checkout@v4
+      # No version here on purpose: pnpm/action-setup reads `packageManager`
+      # from package.json, so CI, Docker and a developer's machine cannot
+      # drift onto three different pnpm versions.
       - uses: pnpm/action-setup@v3
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -58,6 +61,48 @@ jobs:
 
       - name: Verify the output is a usable site
         run: pnpm run verify
+
+  # The container is documented in the README, so it has to keep working.
+  # Nothing else here would notice it breaking: it is not part of `validate`,
+  # and a developer who never runs Docker would not see it fail.
+  docker:
+    name: Local preview container
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t astro-rocket-preview .
+
+      - name: Serve it
+        run: |
+          docker run -d --name preview -p 4321:8080 astro-rocket-preview
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:4321/ > /dev/null && break
+            sleep 1
+          done
+
+      - name: The home page is served
+        run: curl -fsS http://localhost:4321/ | grep -q '<title>'
+
+      - name: A nested page is served
+        run: curl -fsS http://localhost:4321/blog/ | grep -q '<title>'
+
+      # The static build has no API routes. nginx has to say so in the shape
+      # the contact form parses, or the form shows "Failed to send message"
+      # and the reason is lost.
+      - name: The API routes answer honestly
+        run: |
+          code=$(curl -s -o body.json -w '%{http_code}' -X POST http://localhost:4321/api/contact)
+          test "$code" = "501"
+          node -e "const b=require('./body.json'); if(b.success!==false||!b.errors?.form?.[0]) process.exit(1)"
+
+      - name: A missing page is a 404
+        run: test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4321/no-such-page/)" = "404"
+
+      - name: Stop
+        if: always()
+        run: docker rm -f preview || true
 
 # Deployment is left to the platform's own Git integration by default.
 # To deploy from here instead, add one of these to a job that runs after

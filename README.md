@@ -7,9 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://astro.build"><img src="https://img.shields.io/badge/Astro-7.0-bc52ee?logo=astro&logoColor=white" alt="Astro" /></a>
-  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind-4.0-38bdf8?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" /></a>
+  <a href="https://astro.build"><img src="https://img.shields.io/badge/Astro-7.2-bc52ee?logo=astro&logoColor=white" alt="Astro" /></a>
+  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind-4.3-38bdf8?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" /></a>
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://github.com/hansmartensdev/astro-rocket/actions/workflows/deploy.yml"><img src="https://github.com/hansmartensdev/astro-rocket/actions/workflows/deploy.yml/badge.svg" alt="Build, lint, type check and tests" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22c55e" alt="License" /></a>
   <a href="https://github.com/hansmartensdev/astro-rocket"><img src="https://img.shields.io/github/stars/hansmartensdev/astro-rocket?style=flat&label=%E2%AD%90%20Star%20on%20GitHub&color=f59e0b" alt="Star on GitHub" /></a>
   <a href="https://github.com/hansmartensdev/astro-rocket"><img src="https://visitor-badge.laobi.icu/badge?page_id=hansmartensdev.astro-rocket" alt="Visitors" /></a>
@@ -61,6 +62,31 @@ Astro Rocket is a **free, lightning-fast Astro 7 starter theme to build anything
 Built on Astro 7 and Tailwind CSS v4.
 
 **[Live demo → astrorocket.dev](https://astrorocket.dev)** · **[Built by Hans Martens → hansmartens.dev](https://hansmartens.dev)**
+
+### Run it
+
+With Node 22.12+ and pnpm:
+
+```bash
+git clone https://github.com/hansmartensdev/astro-rocket.git my-project
+cd my-project && pnpm install && pnpm dev
+```
+
+Or with only Docker installed, building nothing on your own machine:
+
+```bash
+docker compose up --build
+```
+
+Either way the site is on **http://localhost:4321**. [Quick Start](#quick-start) has the detail.
+
+### Good to know
+
+Three things people reasonably expect that this theme does not do:
+
+- **There is no CMS or admin.** Posts, projects and pages are Markdown files in `src/content/`, edited in your editor and deployed by pushing. That is what keeps the whole site static and fast.
+- **The contact form and newsletter need a key.** They post to server routes that send through [Resend](https://resend.com), so they need `RESEND_API_KEY` before they will deliver. Both forms say so themselves rather than failing silently.
+- **Search is built, not live.** Pagefind indexes the site at build time, so `astro dev` has no index and the search modal explains that instead of erroring. Run `pnpm build && pnpm preview` to try it.
 
 > **Origins & credits.** Astro Rocket was originally forked from [Velocity](https://github.com/southwellmedia/velocity) by [Southwell Media](https://southwellmedia.com). Velocity provided the solid base — a well-engineered Astro boilerplate with a thoughtful design system and component library — and full credit for that foundation goes to the Southwell Media team. Since then, Astro Rocket has evolved into a theme in its own right, with far more to offer than the original: live colour-theme switching, built-in i18n, static search, project galleries with video, blog comments, durable internal links, and much more — see [What Astro Rocket has to offer](#what-astro-rocket-has-to-offer) below.
 
@@ -223,7 +249,7 @@ The whole system is build-time. No client-side routing, no framework hydration f
 ### Prerequisites
 
 - **Node.js 22.12.0+** (required for Astro 7)
-- **pnpm 9.x** (recommended) or npm/yarn
+- **pnpm 10.33.0** — the version in `packageManager`, which `corepack` installs for you
 
 ### Installation
 
@@ -245,6 +271,36 @@ pnpm dev
 Visit `http://localhost:4321` to see your site.
 
 ---
+
+### Or try it in Docker, without installing anything
+
+If you would rather not put a dependency tree on your own machine yet:
+
+```bash
+docker compose up --build
+```
+
+The site is then on **http://localhost:4321**. The build runs inside the
+container, which can see this repository and nothing else of yours, and the
+image that serves the site is nginx with the generated files in it — no Node,
+no pnpm, no Astro.
+
+To get the built files out instead of serving them:
+
+```bash
+docker compose run --rm export
+```
+
+That writes the site into `./dist`.
+
+**What the container does not cover.** It serves the static build, and the
+contact form and newsletter are the theme's only routes that are not
+prerendered — they become a serverless function on a real deploy. In the
+container they answer with an explanation instead, which the form displays.
+Everything else — all pages, search, the colour themes, RSS, the sitemap — is
+the real thing. For a full preview including the forms, use `pnpm dev` or
+deploy to Vercel, Netlify or Cloudflare.
+
 
 ## Project Structure
 
@@ -301,8 +357,9 @@ astro-rocket/
 | `pnpm lint:fix` | Fix ESLint issues |
 | `pnpm format` | Format code with Prettier |
 | `pnpm format:check` | Check code formatting |
-| `pnpm test` | Run Vitest tests |
-| `pnpm test:e2e` | Run Playwright E2E tests |
+| `pnpm test` | Run Vitest tests, watching for changes |
+| `pnpm test:run` | Run Vitest once and exit — what CI runs |
+| `pnpm validate` | Everything CI runs: lint, types, tests, build, output check |
 
 ---
 

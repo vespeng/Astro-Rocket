@@ -8,6 +8,60 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.5.1] — 2026-08-12
+
+### Fixed
+
+- **The README asked for the wrong pnpm.** Its prerequisites said pnpm 9.x while `packageManager` pins 10.33.0 — the first instruction a newcomer follows, and it was wrong. The Astro and Tailwind badges named 7.0 and 4.0 against the 7.2.0 and ^4.3.1 that `package.json` declares. A test now compares the two: every `pnpm` command the README documents has to be a script that exists, the Node and pnpm versions have to match `engines` and `packageManager`, and each version badge has to match the dependency it names. `component-count.test.ts` already guarded the component figure; this covers the rest of what can be checked against the repository, and each of its six checks was confirmed to fail when the claim it guards is broken.
+- **`pnpm test:e2e` had no tests to run.** The README documented it and `@playwright/test` was a dependency, but there was no Playwright configuration and no spec file anywhere in the repository, so the documented command failed with "No tests found". A starter theme handing somebody a command that errors is worse than not offering one, and what end-to-end tests would have covered is covered: 142 unit tests, and a CI job that exercises the built site over HTTP through the preview container. The script, the dependency and Playwright's output directories are gone, and every command the README documents is now a script that exists.
+- **`.gitignore` named seven things that do not exist.** Six were files that have never appeared in this repository's history — two documents from the boilerplate this theme's ancestor was forked from, and four screenshots belonging to another site. They arrived with the file when the theme was cloned. The seventh was `public/pagefind/`: the search integration writes its index into whichever directory the active adapter builds into, so nothing has ever written there. A `.gitignore` is read by anyone working out how a repository is laid out, and entries pointing at absent files describe a project that is not this one.
+
+### Added
+
+- **Two sections at the top of the README.** "Run it" gives both ways to start in six lines — clone and `pnpm dev`, or `docker compose up --build` with nothing else installed — rather than leaving Quick Start a hundred and fifty lines below the feature table. "Good to know" names the three things people reasonably expect and do not get: there is no CMS or admin, the contact form and newsletter need a Resend key before they deliver, and search is indexed at build time so `astro dev` has none.
+
+## [2.5.0] — 2026-08-12
+
+### Added
+
+- **A Docker preview of the built site.** `docker compose up --build` serves the theme on `localhost:4321` without Node, pnpm or a dependency tree on your own machine, and `docker compose run --rm export` writes the build into `./dist` instead. Two stages: the build stage installs and runs `astro build`, and the runtime image is nginx carrying the generated files and nothing else — no Node, no pnpm, no Astro. It answers two things at once. Somebody weighing up the theme can see it running with only Docker installed, and somebody wary of what a dependency tree's install scripts might read can keep that install inside a container that sees this repository and nothing else of theirs. The contact form and the newsletter are the theme's only routes that are not prerendered, so they are absent from the static build the container serves; rather than a bare 404 — which reaches the form as unparseable text and surfaces as "Failed to send message", reading like a fault in the theme — nginx answers `/api/` with a 501 and a JSON body in the shape the form already parses, so the reason appears in the form itself. pnpm comes from the `packageManager` field rather than a version pinned in the Dockerfile, and `dist/client` is served because that is what Astro writes before any adapter copies it into its own layout, so the container is not tied to one deploy target. A CI job builds the image on every push and exercises it — the home page, a nested page, a 404, and a `POST` to `/api/contact` that has to answer 501 with a parseable body — because nothing else here would notice it breaking. Proposed, with a complete working setup, by [@0Ky](https://github.com/0Ky) in [#652](https://github.com/hansmartensdev/astro-rocket/issues/652).
+
+### Fixed
+
+- **The LetterGlitch tutorial publishes the component the theme actually ships.** That post hands a reader two whole files to copy, and both had fallen behind. The React component was two versions old: it still read the canvas size on every frame, and it carried the off-screen animation loop and per-frame colour parsing that were reported as [#646](https://github.com/hansmartensdev/astro-rocket/issues/646) and fixed in 2.4.1. The Astro wrapper had no `maxWidth` prop and none of the shadow treatment, so anyone following the post built a near-black band with no shadow in either colour mode and no way to know what was missing. Both blocks are now the files, character for character, and the notes under the component explain the two faults rather than describing the code that had them. A note at the top tells anyone who copied the old version to copy it again.
+- **A test checks every file a tutorial tells a reader to save.** The drift above went unnoticed for three months because nothing compared a published code block against the file it claimed to be. Any post that writes "Save this as `some/path`" and follows it with a code block is now making a promise the suite checks, so a new tutorial is covered the day it is written. It fails three ways, each one confirmed: the file changes and the post does not, the post names a path the theme does not have, and the phrasing drifts so nothing is found at all — the last guarding the check itself, which would otherwise pass by finding nothing.
+
+### Changed
+
+- **CI runs the tests.** The workflow ran the linter and the type checker and never the test suite, and neither did `validate`, so 136 tests only ran when somebody typed the command — leaving every guarantee they encode unenforced between commits, including the site-address agreement added in 2.4.0 and the tutorial check added here. A new `test:run` script is vitest without the watcher, so CI and `validate` both terminate; `validate` runs it before the build, because two seconds of tests should fail ahead of twenty seconds of building. pnpm is pinned once in `packageManager` and the workflow's own version pin is gone, so the container, CI and a developer's machine read the same value — CI had been on 9 while the lockfile was written by 10.33. The README's badge row gains the build status, which now means the tests passed rather than only the linter.
+
+## [2.4.1] — 2026-08-11
+
+### Fixed
+
+- **The LetterGlitch effect no longer runs while it is off screen, and no longer parses colours on every frame.** Two faults, one visible symptom: frames long enough to make other animations stutter as scrolling revealed them. The first is that the animation loop started at mount and ran until unmount, with no pause when the canvas left the viewport — and the effect usually sits at the foot of a page, so it consumed frames for an entire visit while the reader was somewhere else. An `IntersectionObserver` now starts the loop on entry and cancels it on exit, with the glitch timer reset on restart so returning to it does not fire a burst of catch-up frames; where `IntersectionObserver` is unavailable the loop runs as before. The second is that `handleSmoothTransitions` walked the whole grid each frame to find the cells whose colour was still moving, then parsed two CSS colour strings per cell with regular expressions — and by the component's own constants around 40% of a grid is mid-transition at any moment, which on a full-width band is well over a thousand parses per frame, each one failing both hex patterns first because an interpolated colour is an `rgb()` string. The palette is now parsed once at mount into numbers, cells carry their channels alongside a cached CSS string, and interpolation is arithmetic, so no colour is parsed after mount. Cells whose colour is moving are tracked in a list rather than found by scanning. The animation is unchanged — same interpolation, same timing, same palette — so a site on this theme needs no changes. Reported with a profile trace and a screen recording by [@0Ky](https://github.com/0Ky) in [#646](https://github.com/hansmartensdev/astro-rocket/issues/646).
+
+## [2.4.0] — 2026-08-08
+
+> **This release can stop a build that used to succeed.** If your pages'
+> canonical tags and their JSON-LD name different domains, `verify-site-url`
+> now fails the build and prints both. That output was always wrong; it never
+> announced itself. The usual cause is `SITE_URL` reaching one of the two and
+> not the other — set it in your host's environment variables, where both read
+> it, and the build passes.
+
+### Fixed
+
+- **`SITE_URL` in a `.env` file now reaches the whole build.** `.env.example` lists it under "Required" and tells you to copy the file to `.env`, and doing that configured half the site: the JSON-LD, share cards and footer took the value, while the canonical tags, sitemap, RSS links and robots.txt kept the `https://example.com` fallback. `astro.config.mjs` runs before Astro loads any `.env` file, so `process.env.SITE_URL` was empty there however the file was written. Nothing failed and nothing looked wrong — and search engines act on canonical tags, so a site could lose its own pages to a domain nobody owns while its author saw a green deploy. The config now loads `.env.local` and `.env` itself before reading anything, in that order, because `process.loadEnvFile` leaves an already-set variable alone and Astro gives `.env.local` precedence. Real environment variables are set before any of it runs, so a host's own configuration still wins. Reported with a full diagnosis and a working fix by [@Mohamed3nan](https://github.com/Mohamed3nan) in [#643](https://github.com/hansmartensdev/astro-rocket/issues/643).
+
+### Added
+
+- **The build stops when a site's pages disagree about its own address.** Two files decide it and neither can do the other's job: `astro.config.mjs` sets `site` — the canonical tags, sitemap, RSS links and robots.txt — and runs before `astro:env` exists, while `src/config/site.config.ts` sets `url` — the JSON-LD, share cards and footer — and cannot use `process.env`, because Cloudflare Workers have none at runtime. The `.env` fix above closes the case that was reported; it cannot close every case, since mode-specific files such as `.env.production` need a mode the config does not know yet. So a new `verify-site-url` integration reads the built output, compares the canonical origin against the JSON-LD origin, and fails the build with both values and where each came from. It runs in `astro:build:done` rather than in `scripts/verify-build.mjs`, where the theme's other output checks live, because that script runs on `pnpm verify` and a deploy runs `astro build`.
+
+### Changed
+
+- **Astro 7.2.0**, up from 7.1.0 — nothing is deprecated and no migration is required, so a site built on this theme needs no changes when it merges this. What 7.2 adds is opt-in and off until you ask for it: background preview servers, a project-relative `logger.entrypoint`, `session: false` to drop the session runtime from serverless bundles, `experimental.incrementalBuild`, and a `digest` property on content entries. The bump also carries the 7.1.1–7.1.6 fixes, three of which reach this theme — duplicate CSS emitted in hybrid mode, stale CSS after a component edit, and scoped styles going missing inside `client:only` islands. Every `@astrojs/*` integration here declares `astro: ^7.0.0`, so none of them moved. Node.js 22.12.0+ is still the floor.
+
 ## [2.3.0] — 2026-08-03
 
 > **The footer changes on every page.** All five layouts now use the `columns`
