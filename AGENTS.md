@@ -38,7 +38,7 @@ Do not write a component count you have not counted from this file.
 | Navigation menus | `src/config/nav.config.ts` |
 | Languages | `src/config/i18n.config.ts` |
 | Cookie-consent behaviour | `src/config/consent.config.ts` |
-| Any visible interface text | `src/i18n/en.json` (and other locales) |
+| Any interface text, including `aria-label`, `alt`, `placeholder` and `title` | `src/i18n/en.json` (and other locales) |
 | A blog post | a new `.mdx` file in `src/content/blog/<locale>/` |
 | A project | a new `.mdx` file in `src/content/projects/<locale>/` |
 | Colours | `src/styles/themes/*.css` — twelve themes, tokens only |
@@ -46,6 +46,16 @@ Do not write a component count you have not counted from this file.
 **Page copy is not in the page files.** Text lives in `src/i18n/en.json` and is
 read through `t()`. Editing a heading usually means editing JSON, not `.astro`.
 If a page appears to have hard-coded text, check the locale file first.
+
+## Before a feature goes in
+
+**Two questions, before the merge and not after.** Does a general user of this
+theme need it? Does the theme need it? A working contribution answers neither,
+and a feature merged on the strength of working code arrives with a
+maintenance surface nobody agreed to carry.
+
+Answering no is not a rejection of the contributor. It is cheaper for everyone
+than a feature the theme carries and nobody maintains.
 
 ## Conventions worth keeping
 
@@ -78,11 +88,28 @@ trust the theme, so a commit message is part of the product.
   links to an AI session. Some tooling adds these by default — remove them.
 - **Present tense, describing the code after the change.** "Scope demo content
   to the demo deployment", not "Fixed the demo leaking".
+- **The subject names the change; it does not argue for it.** "Rewrite the
+  README overview", not "Say what Astro Rocket is before saying what is inside
+  it". No comparisons, no "not X but Y", no reasoning in the title — that is
+  what the body is for. Somebody scanning the history wants to know what each
+  commit did.
 - **Keep the subject line to 72 characters, and prefer 50.** GitHub builds a
   pull request's title from the subject and cuts it at that length, moving what
   is left into the description — so an over-long subject opens the pull request
   with a fragment like "…arsing". The body is where detail belongs; it has no
   limit.
+
+## Checks
+
+- **A check is not finished until it has failed once on purpose.** Write it,
+  run it against the broken state it exists to catch, watch it go red, then fix
+  the code and watch it go green. A check only ever run against working code is
+  an assumption with a green tick on it.
+- **Verify the path that fails, not only the path that works.** A container CI
+  job whose readiness loop ended in `sleep` passed while the container was
+  dead, and an export service with no `SITE_URL` argument shipped localhost
+  canonical tags with both build-time guards silent. Both were tested only in
+  the state where everything works.
 
 ## Commands
 

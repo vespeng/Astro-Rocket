@@ -31,7 +31,24 @@
     "cancel": "Cancel",
     "next": "Next",
     "previous": "Previous",
-    "home": "Home"
+    "home": "Home",
+    "map": "Map",
+    "mapConsentPrompt": "Accept cookies to load the interactive map.",
+    "viewOnGoogleMaps": "View on Google Maps",
+    "themeModeTitle": "Theme: {mode} (click to cycle)",
+    "googleMaps": "Google Maps",
+    "progress": "Progress",
+    "themeMode": "Theme: {mode}",
+    "browseByTag": "Browse by tag",
+    "techStack": "Tech stack",
+    "togglePassword": "Toggle password visibility",
+    "breadcrumb": "Breadcrumb",
+    "copyCode": "Copy code to clipboard",
+    "dismiss": "Dismiss",
+    "notifications": "Notifications",
+    "closeDialog": "Close dialog",
+    "tabs": "Tabs",
+    "verticalTabs": "Vertical tabs"
   },
   "blog": {
     "title": "Blog",
@@ -90,6 +107,13 @@
     "viewProject": "View project",
     "viewSource": "View source",
     "noProjectsFound": "No projects found.",
+    "carouselChooseSlide": "Choose slide",
+    "carouselNextSlide": "Next slide",
+    "carouselPreviousSlide": "Previous slide",
+    "galleryLabel": "Media lightbox",
+    "galleryClose": "Close lightbox",
+    "galleryNextImage": "Next image",
+    "galleryPreviousImage": "Previous image",
     "metaTitle": "Projects",
     "metaDescription": "Selected work — websites, tools, and open-source projects built by Astro Rocket.",
     "heroBadge": "Selected work",
@@ -119,7 +143,8 @@
     "page": "Page {current} of {total}",
     "label": "Pagination",
     "previousPage": "Previous page",
-    "nextPage": "Next page"
+    "nextPage": "Next page",
+    "morePages": "More pages"
   },
   "errors": {
     "pageNotFound": "Page not found",
@@ -216,8 +241,8 @@
       },
       "whatYouGet": {
         "badge": "What you get",
-        "heading": "Everything a real website needs",
-        "lead": "The component library is the heart of the theme. Everything else a real website needs is already on board.",
+        "heading": "Everything a website needs",
+        "lead": "The component library is the heart of the theme. Everything else is already on board.",
         "items": [
           {
             "icon": "component",
@@ -316,7 +341,7 @@
         "description": "Astro Rocket is free, open source, and MIT licensed. Browse the source, open issues, submit PRs, or just clone it and build something great.",
         "button": "View on GitHub",
         "cards": [
-          { "title": "Made by Hans Martens Dev", "text": "Astro Rocket was designed and built by <a href=\"https://hansmartens.dev\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline underline-offset-2 decoration-brand-500 hover:text-brand-400 transition-colors\">Hans Martens Dev</a> — a freelance Astro developer who uses it as the foundation for client projects." },
+          { "title": "Made by Hans Martens Dev", "text": "Astro Rocket was designed and built by <a href=\"https://hansmartens.dev\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline underline-offset-2 decoration-brand-500 hover:text-brand-400 transition-colors\">Hans Martens Dev</a> — an Astro theme developer in Veghel, the Netherlands." },
           { "title": "MIT License", "text": "Free to use in personal and commercial projects. No attribution required, though a star on GitHub is always appreciated." },
           { "title": "Actively maintained", "text": "The theme is kept up to date with new Astro releases and regularly improved based on community feedback." }
         ]
